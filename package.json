@@ -1,6 +1,6 @@
 {
   "name": "@kajws/galaxy-js",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "description": "A JavaScript port of the classic galaxy screensaver with 3D particle simulation",
   "author": "Kaj Wik Siebert <kaj@k-si.com>",
   "license": "MIT",
