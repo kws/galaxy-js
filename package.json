@@ -7,7 +7,7 @@
   "homepage": "https://github.com/kws/galaxy-js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kws/galaxy-js.git"
+    "url": "git+https://github.com/kws/galaxy-js.git"
   },
   "type": "module",
   "scripts": {
