@@ -12,12 +12,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && vite build --config vite.iife.config.ts",
+    "build": "vite build  && vite build --config vite.simple-physics.config.ts && vite build --config vite.iife.config.ts",
     "preview": "vite preview",
     "lint": "eslint . --ext .ts --config eslint.config.js",
     "format": "prettier --write .",
     "type-check": "tsc --noEmit",
-    "test": "vitest"
+    "test": "vitest",
+    "types": "tsc --emitDeclarationOnly",
+    "build:all": "npm run build && npm run types"
   },
   "keywords": [
     "galaxy",
@@ -38,13 +40,16 @@
   "exports": {
     ".": {
       "import": "./dist/galaxy-js.es.js",
-      "require": "./dist/galaxy-js.iife.js"
+      "require": "./dist/galaxy-js.iife.js",
+      "types": "./dist/main.d.ts"
     },
     "./simple-physics": {
-      "import": "./dist/simple-physics.es.js"
+      "import": "./dist/simple-physics.es.js",
+      "types": "./dist/physics/index.d.ts"
     },
     "./util": {
-      "import": "./dist/util.es.js"
+      "import": "./dist/util.es.js",
+      "types": "./dist/physics/util.d.ts"
     }
   },
   "dependencies": {

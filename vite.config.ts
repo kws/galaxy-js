@@ -4,7 +4,7 @@ import fs from 'fs/promises';
 
 const entries = {
   'galaxy-js': path.resolve(__dirname, 'src/main.ts'),
-  'simple-physics': path.resolve(__dirname, 'src/physics/simple.ts'),
+  'simple-physics': path.resolve(__dirname, 'src/physics/index.ts'),
   util: path.resolve(__dirname, 'src/physics/util.ts'),
 };
 
