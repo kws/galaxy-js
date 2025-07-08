@@ -4,16 +4,13 @@ import path from 'path';
 export default defineConfig({
   build: {
     lib: {
-      entry: path.resolve(__dirname, 'src/physics/index.ts'),
+      entry: path.resolve(__dirname, 'src/physics/simple.ts'),
       name: 'SimplePhysics',
-      fileName: 'simple-physics',
-      formats: ['es'],
+      fileName: 'simple-physics.es',
+      formats: ['es']
     },
     outDir: 'dist',
-    rollupOptions: {
-      // No externalization for a single file bundle
-    },
-    minify: false,
+    minify: true,
     emptyOutDir: false, // Don't wipe out main build
   },
 }); 

@@ -45,11 +45,7 @@
     },
     "./simple-physics": {
       "import": "./dist/simple-physics.es.js",
-      "types": "./dist/physics/index.d.ts"
-    },
-    "./util": {
-      "import": "./dist/util.es.js",
-      "types": "./dist/physics/util.d.ts"
+      "types": "./dist/physics/simple.d.ts"
     }
   },
   "dependencies": {
