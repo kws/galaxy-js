@@ -1,0 +1,69 @@
+{
+  "name": "@kajws/galaxy-js",
+  "version": "1.0.0",
+  "description": "A JavaScript port of the classic galaxy screensaver with 3D particle simulation",
+  "author": "Kaj Wik Siebert <kaj@k-si.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/kws/galaxy-js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kws/galaxy-js.git"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && vite build --config vite.iife.config.ts",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .ts --config eslint.config.js",
+    "format": "prettier --write .",
+    "type-check": "tsc --noEmit",
+    "test": "vitest"
+  },
+  "keywords": [
+    "galaxy",
+    "screensaver",
+    "simulation",
+    "physics",
+    "particles",
+    "3d",
+    "web-component",
+    "vite"
+  ],
+  "files": [
+    "dist"
+  ],
+  "main": "dist/galaxy-js.iife.js",
+  "module": "dist/galaxy-js.es.js",
+  "unpkg": "dist/galaxy-js.iife.js",
+  "exports": {
+    ".": {
+      "import": "./dist/galaxy-js.es.js",
+      "require": "./dist/galaxy-js.iife.js"
+    },
+    "./simple-physics": {
+      "import": "./dist/simple-physics.es.js"
+    },
+    "./util": {
+      "import": "./dist/util.es.js"
+    }
+  },
+  "dependencies": {
+    "lit": "^3.3.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.30.1",
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.35.1",
+    "@typescript-eslint/parser": "^8.35.1",
+    "eslint": "^9.30.1",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.5.1",
+    "globals": "^16.3.0",
+    "jsdom": "^26.1.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^8.35.1",
+    "vite": "^4.0.0",
+    "vitest": "^3.2.4"
+  }
+}

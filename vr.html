@@ -1,0 +1,192 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Galaxy VR</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="module">
+      import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+      import { VRButton } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/webxr/VRButton.js';
+      import { Galaxy } from './src/astro/';
+      import { createRandomGalaxy, updateGalaxies } from './src/physics/simple';
+      import { allStars } from './src/physics/util';
+
+      const SHOW_ORIGIN = false;
+
+      let galaxies = [];
+      const galaxyCount = 3;
+
+      // Initialize galaxies
+      const initializeGalaxies = () => {
+        galaxies = [];
+        const colors = ['#ffadad', '#a0c4ff', '#fdffb6'];
+
+        for (let i = 0; i < galaxyCount; i++) {
+          const galaxy = createRandomGalaxy({
+            minStarCount: 700,
+            maxStarCount: 1000,
+            minGalaxyRadius: 0.5,
+            maxGalaxyRadius: 1.5,
+          });
+          galaxy.data.color = colors[i % colors.length];
+          galaxies.push(galaxy);
+        }
+      };
+
+      const dummy = new THREE.Object3D();
+
+      const createGalaxyMeshes = () => {
+        // Remove old meshes
+        galaxyMeshes.forEach((mesh) => scene.remove(mesh));
+
+        // Create new galaxies
+        initializeGalaxies();
+
+        // Create new meshes for each galaxy
+        galaxyMeshes = [];
+        galaxies.forEach((galaxy) => {
+          const material = new THREE.MeshBasicMaterial({
+            color: galaxy.data.color,
+          });
+          const mesh = new THREE.InstancedMesh(geometry, material, galaxy.stars.length);
+          mesh.frustumCulled = false;
+          galaxyMeshes.push(mesh);
+          scene.add(mesh);
+        });
+
+        // Initialize new mesh positions
+        galaxies.forEach((galaxy, galaxyIndex) => {
+          let i = 0;
+          galaxy.stars.forEach((star) => {
+            dummy.position.set(star.pos.x, star.pos.y, star.pos.z);
+            dummy.updateMatrix();
+            galaxyMeshes[galaxyIndex].setMatrixAt(i, dummy.matrix);
+            i++;
+          });
+          galaxyMeshes[galaxyIndex].instanceMatrix.needsUpdate = true;
+        });
+      };
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x000000);
+
+      // Move the entire scene forward so galaxies appear in front of VR user
+      scene.position.set(0, 0, -10);
+
+      const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        10000,
+      );
+      camera.position.set(0, 0, 50); // Reset camera to origin since we moved the scene
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.xr.enabled = true;
+      document.body.appendChild(renderer.domElement);
+      document.body.appendChild(VRButton.createButton(renderer));
+
+      // Simple camera controls
+      let cameraDistance = 10; // Start closer to the scene
+      let cameraAngle = 0;
+
+      // LIGHT (optional)
+      scene.add(new THREE.AmbientLight(0xffffff, 1));
+
+      // MESH SETUP - Create separate meshes for each galaxy to use their colors
+      const geometry = new THREE.SphereGeometry(0.02, 8, 8);
+      let galaxyMeshes = [];
+
+      // Create a mesh for each galaxy with its own color
+      galaxies.forEach((galaxy) => {
+        const material = new THREE.MeshBasicMaterial({
+          color: galaxy.data.color,
+        });
+        const mesh = new THREE.InstancedMesh(geometry, material, galaxy.stars.length);
+        galaxyMeshes.push(mesh);
+        scene.add(mesh);
+      });
+
+      createGalaxyMeshes();
+
+      // Origin marker - make it larger and more visible
+      if (SHOW_ORIGIN) {
+        const originGeometry = new THREE.SphereGeometry(0.02, 16, 16);
+        const originMaterial = new THREE.MeshBasicMaterial({
+          color: 0x00ff00,
+          wireframe: true,
+        });
+        const originMarker = new THREE.Mesh(originGeometry, originMaterial);
+        originMarker.position.set(0, 0, 0); // Position at the actual origin where galaxies are
+        scene.add(originMarker);
+      }
+
+      let step = 0;
+
+      // RENDER LOOP
+      renderer.setAnimationLoop(() => {
+        updateGalaxies(galaxies);
+
+        // Update positions for each galaxy
+        galaxies.forEach((galaxy, galaxyIndex) => {
+          let index = 0;
+          galaxy.stars.forEach((star) => {
+            dummy.position.set(star.pos.x, star.pos.y, star.pos.z);
+            dummy.updateMatrix();
+            galaxyMeshes[galaxyIndex].setMatrixAt(index, dummy.matrix);
+            index++;
+          });
+          galaxyMeshes[galaxyIndex].instanceMatrix.needsUpdate = true;
+        });
+
+        // Update camera position for simple rotation
+        camera.position.x = Math.sin(cameraAngle) * cameraDistance;
+        camera.position.z = -10 + Math.cos(cameraAngle) * cameraDistance; // Rotate around the scene center (z=-10)
+        camera.lookAt(0, 0, -10); // Look at the scene (which is now at z=-10)
+        cameraAngle += 0.005; // Slow rotation
+
+        renderer.render(scene, camera);
+
+        step++;
+        if (step > 1500) {
+          createGalaxyMeshes();
+          step = 0;
+        }
+      });
+
+      // Keyboard controls
+      window.addEventListener('keydown', (event) => {
+        switch (event.key) {
+          case 'ArrowUp':
+            cameraDistance = Math.max(1, cameraDistance - 1);
+            break;
+          case 'ArrowDown':
+            cameraDistance = Math.min(50, cameraDistance + 1);
+            break;
+          case 'ArrowLeft':
+            cameraAngle -= 0.1;
+            break;
+          case 'ArrowRight':
+            cameraAngle += 0.1;
+            break;
+        }
+      });
+
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    </script>
+  </body>
+</html>
